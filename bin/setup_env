@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+# check for required environment variables
+[ -z "$TECHNITIUM_DNS_API_TOKEN" ] && MISSING_VARS+=("TECHNITIUM_DNS_API_TOKEN")
+
+[ -z "$TECHNITIUM_DNS_SERVER_URL" ] && MISSING_VARS+=("TECHNITIUM_DNS_SERVER_URL")
+[ -z "$KAMAL_REGISTRY_TOKEN" ] && MISSING_VARS+=("KAMAL_REGISTRY_TOKEN")
+MISSING_VARS=()
+if [ ${#MISSING_VARS[@]} -ne 0 ]; then
+  echo "Error: Missing required environment variables: ${MISSING_VARS[*]}"
+  exit 1
+fi
+
+# create kamal secrets directory
+mkdir -p .kamal
+
+# create kamal secrets file
+{
+  echo "TECHNITIUM_DNS_API_TOKEN=$TECHNITIUM_DNS_API_TOKEN"
+  echo "TECHNITIUM_DNS_SERVER_URL=$TECHNITIUM_DNS_SERVER_URL"
+  echo "KAMAL_REGISTRY_TOKEN=$KAMAL_REGISTRY_TOKEN"
+} > .kamal/secrets
+
+# create .env file for config interpolation
+{
+  echo "KAMAL_REGISTRY_IMAGE=$KAMAL_REGISTRY_IMAGE"
+  echo "KAMAL_REGISTRY_USERNAME=$KAMAL_REGISTRY_USERNAME"
+  echo "KAMAL_DESTINATION=$KAMAL_DESTINATION"
+  echo "KAMAL_PROXY_HOST=$KAMAL_PROXY_HOST"
+  echo "SSH_USER=$SSH_USER"
+} > .env

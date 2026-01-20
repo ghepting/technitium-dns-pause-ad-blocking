@@ -1,0 +1,44 @@
+<% require "dotenv"; Dotenv.load %>
+service: pause-blocking
+image: <%= ENV.fetch('KAMAL_REGISTRY_IMAGE') %>
+
+# kamal proxy
+proxy:
+  host: <%= ENV.fetch('KAMAL_PROXY_HOST') %>
+  app_port: 3000
+  ssl: false
+  run:
+    http_port: 8080
+    https_port: 8443
+  healthcheck:
+    path: /
+    interval: 2
+    timeout: 5
+
+deploy_timeout: 15
+
+servers:
+  web:
+    hosts:
+      - <%= ENV.fetch('KAMAL_DESTINATION') %>
+
+env:
+  secret:
+    - TECHNITIUM_DNS_API_TOKEN
+    - TECHNITIUM_DNS_SERVER_URL
+
+registry:
+  server: ghcr.io
+  username: <%= ENV.fetch('KAMAL_REGISTRY_USERNAME') %>
+  password:
+    - KAMAL_REGISTRY_TOKEN
+
+builder:
+  arch: amd64
+
+ssh:
+  user: <%= ENV.fetch('SSH_USER') %>
+
+boot:
+  limit: 1
+  wait: 10

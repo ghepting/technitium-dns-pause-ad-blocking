@@ -1,0 +1,85 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      TECHNITIUM_DNS_API_TOKEN: ${{ secrets.TECHNITIUM_DNS_API_TOKEN }}
+      TECHNITIUM_DNS_SERVER_URL: ${{ vars.TECHNITIUM_DNS_SERVER_URL || secrets.TECHNITIUM_DNS_SERVER_URL }}
+      KAMAL_DESTINATION: ${{ vars.KAMAL_DESTINATION || secrets.KAMAL_DESTINATION }}
+      KAMAL_PROXY_HOST: ${{ vars.KAMAL_PROXY_HOST || secrets.KAMAL_PROXY_HOST }}
+      KAMAL_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
+      KAMAL_REGISTRY_TOKEN: ${{ secrets.KAMAL_REGISTRY_TOKEN }}
+      KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
+      SSH_USER: ${{ vars.SSH_USER || secrets.SSH_USER }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          bundler-cache: true
+
+      - name: Install Kamal
+        run: gem install kamal
+
+      - name: Setup env vars & .kamal/secrets
+        run: ./bin/setup_env
+
+      - name: Connect to VPN
+        uses: niklaskeerl/easy-wireguard-action@v2
+        with:
+          WG_CONFIG_FILE: ${{ secrets.WIREGUARD_CONFIG }}
+
+      - name: Verify VPN Connection
+        run: |
+          # Try to ping the server every 0.5s for a max of 5s
+          for i in {1..10}; do
+            if ping -c 1 -W 1 ${{ env.KAMAL_DESTINATION }}; then
+              echo "VPN is up!"
+              exit 0
+            fi
+            echo "Waiting for VPN..."
+            sleep 0.5
+          done
+          echo "VPN failed to connect"
+          exit 1
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Configure/Optimize SSH
+        run: |
+          mkdir -p ~/.ssh
+          # add known hosts
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          # setup persistent SSH connection
+          echo "Host ${{ env.KAMAL_DESTINATION }}
+            ServerAliveInterval 30
+            ServerAliveCountMax 5
+            ControlMaster auto
+            ControlPath ~/.ssh/control-%C
+            ControlPersist 10m" >> ~/.ssh/config
+
+      - name: Debug Environment
+        run: env | grep 'KAMAL\|SSH\|TECHNITIUM' | sort
+
+      - name: Run Kamal Deploy
+        env:
+          SKIP_PUSH: "true"
+        run: kamal deploy
