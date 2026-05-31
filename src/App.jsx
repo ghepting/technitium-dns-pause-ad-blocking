@@ -238,10 +238,12 @@ function App() {
       />
       <Container maxWidth="sm">
         <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="100vh"
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+          }}
         >
           <Card sx={{ width: "100%", maxWidth: 400, p: 2 }}>
             <CardContent>

@@ -15,7 +15,7 @@ jobs:
       TECHNITIUM_DNS_SERVER_URL: ${{ vars.TECHNITIUM_DNS_SERVER_URL || secrets.TECHNITIUM_DNS_SERVER_URL }}
       KAMAL_DESTINATION: ${{ vars.KAMAL_DESTINATION || secrets.KAMAL_DESTINATION }}
       KAMAL_PROXY_HOST: ${{ vars.KAMAL_PROXY_HOST || secrets.KAMAL_PROXY_HOST }}
-      KAMAL_REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
+      KAMAL_REGISTRY_IMAGE: ${{ github.repository }}
       KAMAL_REGISTRY_TOKEN: ${{ secrets.KAMAL_REGISTRY_TOKEN }}
       KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
       SSH_USER: ${{ vars.SSH_USER || secrets.SSH_USER }}
@@ -80,6 +80,4 @@ jobs:
         run: env | grep 'KAMAL\|SSH\|TECHNITIUM' | sort
 
       - name: Run Kamal Deploy
-        env:
-          SKIP_PUSH: "true"
         run: kamal deploy
