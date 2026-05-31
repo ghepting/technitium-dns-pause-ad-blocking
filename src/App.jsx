@@ -247,7 +247,12 @@ function App() {
         >
           <Card sx={{ width: "100%", maxWidth: 400, p: 2 }}>
             <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
                 <img
                   src="/ninja.svg"
                   alt="Ninja Logo"
@@ -259,13 +264,21 @@ function App() {
                 component="h1"
                 gutterBottom
                 align="center"
-                sx={{ mb: 10, fontWeight: "bold" }}
+                sx={{ fontWeight: "bold" }}
               >
                 Pause Ninja Ad Blocking
               </Typography>
 
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  mt: 4,
+                  mb: 4,
+                }}
+              >
                 <IconButton
+                  color="primary"
                   onClick={handlePauseBlocking}
                   disabled={
                     loading ||
@@ -275,26 +288,23 @@ function App() {
                   sx={{
                     width: 160,
                     height: 160,
-                    backgroundColor: resumeTime ? "transparent" : "primary.main",
-                    color: "white",
-                    "&:hover": {
-                      backgroundColor: "primary.dark",
-                    },
-                    "&.Mui-disabled": {
-                      backgroundColor: "rgba(255, 255, 255, 0.12)",
-                      color: "rgba(255, 255, 255, 0.3)",
+                    "& .MuiSvgIcon-root": {
+                      fontSize: 160,
                     },
                   }}
                   aria-label="pause ad blocking"
                 >
-                  <PauseCircleFilledIcon sx={{ fontSize: 160 }} />
+                  <PauseCircleFilledIcon />
                 </IconButton>
               </Box>
               <Typography
                 variant="caption"
-                display="block"
-                align="center"
-                sx={{ mt: 5, opacity: 0.7 }}
+                sx={{
+                  display: "block",
+                  textAlign: "center",
+                  mt: 4,
+                  mb: 4,
+                }}
               >
                 {loading
                   ? "Pausing..."
@@ -305,7 +315,7 @@ function App() {
                       : "Tap to Pause"}
               </Typography>
 
-              <FormControl fullWidth sx={{ mt: 5 }}>
+              <FormControl fullWidth>
                 <InputLabel id="duration-select-label">Duration</InputLabel>
                 <Select
                   labelId="duration-select-label"
