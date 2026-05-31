@@ -127,13 +127,16 @@ function App() {
       } else {
         setHealthStatus({ status: "error" });
       }
-    } catch (err) {
+    } catch {
       setHealthStatus({ status: "error" });
     }
   }, []);
 
   React.useEffect(() => {
-    checkHealth();
+    const init = async () => {
+      await checkHealth();
+    };
+    init();
     const interval = setInterval(checkHealth, 30000); // Poll every 30 seconds
     return () => clearInterval(interval);
   }, [checkHealth]);
@@ -242,7 +245,7 @@ function App() {
         >
           <Card sx={{ width: "100%", maxWidth: 400, p: 2 }}>
             <CardContent>
-              <Box display="flex" justifyContent="center" mb={2}>
+              <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
                 <img
                   src="/ninja.svg"
                   alt="Ninja Logo"
@@ -259,23 +262,30 @@ function App() {
                 Pause Ninja Ad Blocking
               </Typography>
 
-              <Box display="flex" justifyContent="center" mt={10}>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
                 <IconButton
-                  color="primary"
                   onClick={handlePauseBlocking}
                   disabled={
                     loading ||
                     !!resumeTime ||
                     (healthStatus && healthStatus.status !== "ok")
                   }
-                  size="large"
                   sx={{
-                    transform: "scale(4)",
-                    padding: 1,
+                    width: 160,
+                    height: 160,
+                    backgroundColor: resumeTime ? "transparent" : "primary.main",
+                    color: "white",
+                    "&:hover": {
+                      backgroundColor: "primary.dark",
+                    },
+                    "&.Mui-disabled": {
+                      backgroundColor: "rgba(255, 255, 255, 0.12)",
+                      color: "rgba(255, 255, 255, 0.3)",
+                    },
                   }}
                   aria-label="pause ad blocking"
                 >
-                  <PauseCircleFilledIcon fontSize="large" />
+                  <PauseCircleFilledIcon sx={{ fontSize: 160 }} />
                 </IconButton>
               </Box>
               <Typography
@@ -315,14 +325,14 @@ function App() {
               </FormControl>
 
               {healthStatus && (
-                <Box mt={4} textAlign="center">
+                <Box sx={{ mt: 4, textAlign: "center" }}>
                   <Box>
                     <Typography
                       variant="body2"
                       color={
                         healthStatus.status === "ok" ? "textSecondary" : "error"
                       }
-                      mb={1}
+                      sx={{ mb: 1 }}
                     >
                       Ninja DNS Server Status:
                     </Typography>
